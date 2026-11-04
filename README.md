@@ -1,34 +1,88 @@
-# Proyecto: Entrega Final - Gastón Ariel Perrone
+# API de productos
 
-Esta es una API simple para gestionar productos. Proporciona endpoints para obtener la lista de productos y
-detalles de cada producto.
+API REST desarrollada con Node.js, Express y Firebase Firestore para consultar y administrar productos.
 
-## Ejemplo de respuesta
+## Requisitos
 
-```json
-[
-    {"id": 1, "nombre": "Producto 1", "precio": 100},
-    {"id": 2, "nombre": "Producto 2", "precio": 200}
-]
+- Node.js y npm instalados.
+- Acceso a Internet.
+- Un proyecto de Firebase con Firestore habilitado y una colección llamada `products`.
+
+La configuración de Firebase se encuentra en `src/data/data.js`. Antes de ejecutar la API, verifica que corresponda a tu proyecto de Firebase y que la configuración de Firestore permita las operaciones que necesita la aplicación. No publiques credenciales privadas ni habilites acceso irrestricto a Firestore en producción.
+
+## Instalación y ejecución
+
+Desde la carpeta del proyecto, instala las dependencias:
+
+```bash
+npm install
 ```
 
-## CRUD
+Inicia la API:
 
-| CRUD   | Uso habitual  | Método HTTP Habitual |
-| ------ | ------------- | -------------------- |
-| Create | Crear         | POST                 |
-| Read   | Leer          | GET                  |
-| Update | Actualizar    | PUT / PATH           |
-| Delete | Eliminar      | DELETE               |
+```bash
+npm start
+```
 
-## Contrato de productos
+Para desarrollo, puedes usar el modo que reinicia el servidor cuando detecta cambios:
 
-| Necesidad         | Método | Endpoint        | Respuesta esperada              | Estado principal esperado |
-| ----------------- | ------ | --------------- | ------------------------------- | ------------------------- |
-| Listar productos  | GET    | /api/productos  | Array de productos en JSON      | 200                       |
-| Obtener un producto | GET   | /api/productos/1 | Objeto producto en JSON | 200         |
-| Crear un producto | POST | /api/productos | Un objeto producto en JSON con ID | 201           |
-| Actualizar un producto | PUT | /api/productos/1 | Un objeto producto en JSON | 200          |
-| Eliminar un producto | DELETE | /api/productos/1 | Confirmación o sin contenido | 200 o 204 |
+```bash
+npm run dev
+```
 
-/api/productos/{id}
+Cuando el servidor esté activo, escucha en `http://localhost:3000`. Déjalo ejecutándose mientras realizas solicitudes desde Postman.
+
+## Endpoints disponibles
+
+La ruta base es `/api`. Los IDs son los IDs de documento de Firestore (texto), no necesariamente números.
+
+| Operación | Método | URL | Respuesta esperada |
+| --- | --- | --- | --- |
+| Listar productos | GET | `http://localhost:3000/api/products` | `200` y un array JSON |
+| Consultar un producto | GET | `http://localhost:3000/api/products/:id` | `200` y un producto; `404` si no existe |
+| Crear un producto | POST | `http://localhost:3000/api/products` | `201` y el producto creado |
+| Actualizar un producto | PUT | `http://localhost:3000/api/products/:id` | `200` y el producto actualizado |
+| Eliminar un producto | DELETE | `http://localhost:3000/api/products/:id` | `200` y confirmación de eliminación |
+
+### Ejemplos para Postman
+
+Para consultar un producto, primero puedes listar los productos y copiar el valor `id` devuelto. Luego envía:
+
+```http
+GET http://localhost:3000/api/products/ID_DEL_DOCUMENTO
+```
+
+Para crear un producto, selecciona `POST`, usa la URL de creación y configura **Body → raw → JSON**:
+
+```json
+{
+  "name": "Conjunto Impulse F1 hombre",
+  "price": 400,
+  "categoryID": "automovilismo"
+}
+```
+
+Para actualizarlo, selecciona `PUT`, reemplaza el ID en la URL y envía los campos que quieres guardar:
+
+```json
+{
+  "name": "Conjunto Impulse F1 hombre",
+  "price": 450,
+  "categoryID": "automovilismo"
+}
+```
+
+Para eliminarlo, selecciona `DELETE` y usa el ID del documento en la URL:
+
+```http
+DELETE http://localhost:3000/api/products/ID_DEL_DOCUMENTO
+```
+
+La respuesta confirma la eliminación y devuelve el ID. Las rutas POST y PUT leen `name`, `price` y `categoryID` del cuerpo JSON. Al actualizar, los campos enviados se escriben en el documento con esos nombres.
+
+## Solución de problemas
+
+- **No conecta con el servidor:** verifica que `npm start` o `npm run dev` siga ejecutándose y que la URL use el puerto `3000`.
+- **404 al consultar un producto:** comprueba que copiaste el ID exacto del documento de Firestore y que existe en la colección `products`.
+- **Error 500 o respuesta HTML:** revisa la salida de la terminal donde corre Node.js. Confirma la configuración de Firebase, que Firestore esté habilitado, que haya conexión a Internet y que las reglas/permisos de Firestore permitan la operación.
+- **404 para una URL:** los endpoints usan `/api/products`, en singular `products` en inglés; por ejemplo, `/api/products/:id`.

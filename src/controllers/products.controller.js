@@ -6,7 +6,7 @@ export const getAllProducts = async (req, res) => {
 
 export const getProductById = async (req, res) => {
   const id = req.params.id;
-  const product = await productsService.getProductById(parseInt(id));
+  const product = await productsService.getProductById(id);
   if (product) {
     return res.status(200).json(product);
   } else {
@@ -27,10 +27,16 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   const id = req.params.id;
   const { name, price, categoryID } = req.body;
-  const updatedProduct = await productsService.updateProduct(parseInt(id), {
+  const updatedProduct = await productsService.updateProduct(id, {
     name,
     price,
     categoryID,
   });
   res.status(200).json({ message: "Product updated", product: updatedProduct });
+};
+
+export const deleteProduct = async (req, res) => {
+  const { id } = req.params;
+  await productsService.deleteProduct(id);
+  res.status(200).json({ message: "Product deleted", id });
 };

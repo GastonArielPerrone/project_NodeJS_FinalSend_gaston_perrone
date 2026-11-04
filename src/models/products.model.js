@@ -1,42 +1,44 @@
-import fs from 'fs';
-import path from 'path';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDoc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
 
-const __dirname = import.meta.dirname;
+import { db } from "../data/data.js";
 
-const dataPath = path.join(__dirname, '../data/dataProducts.json');
+const productsCollection = collection(db, "products");
 
 export const getAllProducts = async () => {
-    const data = fs.readFileSync(dataPath, 'utf8');
-    return JSON.parse(data);
-}
+  const querysnapshot = await getDocs(productsCollection);
+  const products = [];
+  querysnapshot.forEach((doc) => {
+    products.push({
+      id: doc.id,
+      ...doc.data(),
+    });
+  });
+  return products;
+};
 
 export const getProductById = async (id) => {
-    const products = await getAllProducts();
-    return products.find((product) => product.id === id);
-}
+  const snapshot = await getDoc(doc(productsCollection, id));
+  return snapshot.exists() ? { id: snapshot.id, ...snapshot.data() } : null;
+};
 
 export const createProduct = async (product) => {
-    const products = await getAllProducts();
-    const newProduct = { id: products.length + 1, ...product };
-    products.push(newProduct);
-    fs.writeFileSync(dataPath, JSON.stringify(products, null, 2));
-    return newProduct;
-}
+  const newProduct = await addDoc(productsCollection, product);
+  return { id: newProduct.id, ...product };
+};
 
 export const deleteProduct = async (id) => {
-    const products = await getAllProducts();
-    const productDeleted = products.filter((product) => product.id !== id);
-    fs.writeFileSync(dataPath, JSON.stringify(productDeleted, null, 2));
-    return productDeleted;
-}
+  await deleteDoc(doc(productsCollection, id));
+};
 
 export const updateProduct = async (id, product) => {
-    const products = await getAllProducts();
-    const index = products.findIndex((p) => p.id === id);
-    if (index !== -1) {
-        products[index] = { ...products[index], ...product };
-        fs.writeFileSync(dataPath, JSON.stringify(products, null, 2));
-        return products[index];
-    }
-    throw new Error("Product not found");
-}
+  await updateDoc(doc(productsCollection, id), product);
+  return { id, ...product };
+};
