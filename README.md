@@ -35,6 +35,7 @@ Cuando el servidor esté activo, escucha en `http://localhost:3000`. Déjalo eje
 ## Endpoints disponibles
 
 La ruta base es `/api`. Los IDs son los IDs de documento de Firestore (texto), no necesariamente números.
+Las consultas GET son públicas. Para crear, actualizar o eliminar productos, inicia sesión en `/auth/login` y envía el token en el encabezado `Authorization: Bearer <token>`.
 
 | Operación | Método | URL | Respuesta esperada |
 | --- | --- | --- | --- |
