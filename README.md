@@ -39,6 +39,8 @@ Las consultas GET son públicas. Para crear, actualizar o eliminar productos, in
 
 | Operación | Método | URL | Respuesta esperada |
 | --- | --- | --- | --- |
+| Registrar usuario | POST | `http://localhost:3000/auth/register` | `201` y el usuario creado |
+| Iniciar sesión | POST | `http://localhost:3000/auth/login` | `200` y un token |
 | Listar productos | GET | `http://localhost:3000/api/products` | `200` y un array JSON |
 | Consultar un producto | GET | `http://localhost:3000/api/products/:id` | `200` y un producto; `404` si no existe |
 | Crear un producto | POST | `http://localhost:3000/api/products` | `201` y el producto creado |
@@ -46,6 +48,17 @@ Las consultas GET son públicas. Para crear, actualizar o eliminar productos, in
 | Eliminar un producto | DELETE | `http://localhost:3000/api/products/:id` | `200` y confirmación de eliminación |
 
 ### Ejemplos para Postman
+
+Para registrar un usuario, selecciona `POST`, configura **Body → raw → JSON** y envía:
+
+```json
+{
+  "email": "usuario@example.com",
+  "password": "una-clave-segura"
+}
+```
+
+La API guarda el usuario en la colección `users` de Firestore y almacena la contraseña con hash. Para iniciar sesión, envía el mismo JSON a `http://localhost:3000/auth/login`. El correo se guarda y consulta sin distinguir mayúsculas/minúsculas.
 
 Para consultar un producto, primero puedes listar los productos y copiar el valor `id` devuelto. Luego envía:
 
